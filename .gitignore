@@ -18,7 +18,7 @@
 *.zip
 *.tar.gz
 *.rar
-
+,docs/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
@@ -53,3 +53,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# Configuration files with secrets
+opencode.json
+opencode.jsonc
+.env
+.env.*
