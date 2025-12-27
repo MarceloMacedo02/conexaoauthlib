@@ -158,20 +158,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Maven Source Plugin - Gerar JAR com fontes -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+
 
             <!-- Maven Javadoc Plugin - Gerar JAR com Javadoc -->
             <plugin>
@@ -189,6 +176,11 @@
                 <configuration>
                     <source>${java.version}</source>
                     <doclint>none</doclint>
+                    <encoding>UTF-8</encoding>
+                    <charset>UTF-8</charset>
+                    <docencoding>UTF-8</docencoding>
+                    <additionalOptions>-Xdoclint:none</additionalOptions>
+                    <failOnError>false</failOnError>
                 </configuration>
             </plugin>
 
@@ -235,6 +227,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.14</version>
                 <executions>
                     <execution>
                         <goals>
@@ -247,8 +240,14 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <skip>${skipTests}</skip>
+                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <skip>${skipTests}</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
