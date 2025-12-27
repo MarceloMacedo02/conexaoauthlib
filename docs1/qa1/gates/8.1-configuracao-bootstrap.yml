@@ -1,0 +1,34 @@
+schema: 1
+story: '8.1'
+story_title: 'Configuração de Bootstrap'
+gate: PASS
+status_reason: 'Configuração robusta com ApplicationListener, service orchestrator e desabilitável via properties.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-12-24T10:00:00Z'
+
+top_issues: []
+
+waiver: { active: false }
+
+quality_score: 90
+
+evidence:
+  tests_reviewed: 3
+  risks_identified: 0
+  trace:
+    ac_covered: [1, 2, 3, 4, 5, 6]
+    ac_gaps: []
+
+nfr_validation:
+  security: { status: PASS, notes: 'Variáveis de ambiente para credenciais' }
+  performance: { status: PASS, notes: 'Bootstrap leve e rápido' }
+  reliability: { status: PASS, notes: 'Processo idempotente e reentrável' }
+  maintainability: { status: PASS, notes: 'Arquitetura limpa e extensível' }
+
+recommendations:
+  immediate: []
+  future:
+    - action: 'Implementar validação de pré-requisitos mais robusta'
+      refs: ['bootstrap/domain/service/impl/BootstrapServiceImpl.java']
+    - action: 'Adicionar retry para falhas transientes'
+      refs: ['bootstrap/domain/service/impl/BootstrapServiceImpl.java']
