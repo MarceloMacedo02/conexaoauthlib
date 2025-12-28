@@ -142,21 +142,14 @@ public class ConexaoAuthServiceImpl implements ConexaoAuthService {
 
         try {
             // Cria request para Client Credentials Flow
-            ClientCredentialsRequest request = new ClientCredentialsRequest(
-                    "client_credentials",
-                    clientId,
-                    clientSecret,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    "read write",
-                    null
-            );
+            ClientCredentialsRequest request = new ClientCredentialsRequest();
+            request.setGrantType("client_credentials");
+            request.setClientId(clientId);
+            request.setClientSecret(clientSecret);
+            request.setScope("read write");
 
             log.debug("Client Credentials Request: grant_type={}, client_id={}",
-                    request.grantType(), request.clientId());
+                    request.getGrantType(), request.getClientId());
 
             TokenResponse response = conexaoAuthClient.clientCredentials(request);
             log.info("Token obtido com sucesso. Token Type: {}, Expires In: {}s",
