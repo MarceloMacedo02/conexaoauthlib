@@ -146,7 +146,13 @@ public class ConexaoAuthServiceImpl implements ConexaoAuthService {
                     "client_credentials",
                     clientId,
                     clientSecret,
-                    "read write"
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    "read write",
+                    null
             );
 
             log.debug("Client Credentials Request: grant_type={}, client_id={}",
