@@ -1,41 +1,75 @@
 package com.plataforma.conexao.auth.starter.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 /**
  * DTO para solicitação de token via Client Credentials Flow.
  *
- * <p>Este DTO é utilizado para obter um token de acesso no fluxo
+ * <p>
+ * Este DTO é utilizado para obter um token de acesso no fluxo
  * Client Credentials do OAuth2, onde o cliente (aplicação) se autentica
  * diretamente usando client_id e client_secret.
  *
  * @author Conexão Auth Team
  * @version 1.0.0
  */
-public record ClientCredentialsRequest(
+@Data
+@AllArgsConstructor
+public class ClientCredentialsRequest {
 
     /**
-     * Tipo de grant (obrigatoriamente "client_credentials").
+     * Tipo de grant: client_credentials, refresh_token, etc.
      */
-    @NotBlank(message = "Grant type é obrigatório")
-    @Pattern(regexp = "client_credentials", message = "Grant type deve ser 'client_credentials'")
-    String grantType,
+    @NotBlank(message = "grant_type é obrigatório")
+    private String grantType;
 
     /**
-     * Identificador do cliente (client_id).
+     * Client ID para autenticação do cliente OAuth2.
      */
-    @NotBlank(message = "Client ID é obrigatório")
-    String clientId,
+    @NotBlank(message = "client_id é obrigatório")
+    private String clientId;
 
     /**
-     * Segredo do cliente (client_secret).
+     * Client Secret para autenticação do cliente OAuth2.
      */
-    @NotBlank(message = "Client Secret é obrigatório")
-    String clientSecret,
+    @NotBlank(message = "client_secret é obrigatório")
+    private String clientSecret;
 
     /**
-     * Escopo do token (opcional, ex: "read write").
+     * Código de autorização (para grant_type=authorization_code).
      */
-    String scope
-) {}
+    private String code;
+
+    /**
+     * URI de redirecionamento (para grant_type=authorization_code).
+     */
+    private String redirectUri;
+
+    /**
+     * Refresh token (para grant_type=refresh_token).
+     */
+    private String refreshToken;
+
+    /**
+     * Username (para grant_type=password, se suportado).
+     */
+    private String username;
+
+    /**
+     * Password (para grant_type=password, se suportado).
+     */
+    private String password;
+
+    /**
+     * Scope solicitado.
+     */
+    private String scope;
+
+    /**
+     * Verifier PKCE (para clientes públicos com PKCE).
+     */
+    private String codeVerifier;
+
+}
