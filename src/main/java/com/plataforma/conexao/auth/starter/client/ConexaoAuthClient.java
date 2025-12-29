@@ -1,9 +1,10 @@
 package com.plataforma.conexao.auth.starter.client;
 
-import com.plataforma.conexao.auth.starter.dto.request.ClientCredentialsRequest;
 import com.plataforma.conexao.auth.starter.dto.request.RegisterUserRequest;
 import com.plataforma.conexao.auth.starter.dto.response.TokenResponse;
 import com.plataforma.conexao.auth.starter.dto.response.UserResponse;
+
+import feign.Body;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
@@ -73,16 +74,48 @@ public interface ConexaoAuthClient {
     /**
      * Solicita token via Client Credentials Flow.
      *
-     * <p>Endpoint: POST /oauth2/token
+     * <p>
+     * Endpoint: POST /oauth2/token
      *
-     * <p>Obtém um token de acesso autenticando-se como client (application)
+     * <p>
+     * Obtém um token de acesso autenticando-se como client (application)
      * usando o fluxo Client Credentials do OAuth2. Este fluxo é utilizado
      * por aplicações que precisam de acesso à API sem contexto de usuário.
      *
-     * <p>O request deve ser enviado como form-data (application/x-www-form-urlencoded),
-     * não como JSON.
+     * <p>
+     * O request é enviado como form-data (application/x-www-form-urlencoded)
+     * usando o @Body template do Feign para garantir a codificação correta.
+     * Isso resolve o problema do StrictHttpFirewall que rejeita requisições
+     * enviadas como JSON quando o Content-Type é application/x-www-form-urlencoded.
      *
-     * @param request DTO com credenciais do client
+     * <p>Parâmetros obrigatórios:
+     * <ul>
+     *   <li>grantType - Tipo de grant (ex: "client_credentials")</li>
+     *   <li>clientId - ID do cliente OAuth2</li>
+     *   <li>clientSecret - Secret do cliente OAuth2</li>
+     * </ul>
+     *
+     * <p>Parâmetros opcionais (passar null para omitir):
+     * <ul>
+     *   <li>scope - Escopos solicitados (ex: "read write")</li>
+     *   <li>code - Código de autorização (para authorization_code)</li>
+     *   <li>redirectUri - URI de redirecionamento</li>
+     *   <li>refreshToken - Token de atualização</li>
+     *   <li>username - Usuário (para password grant)</li>
+     *   <li>password - Senha (para password grant)</li>
+     *   <li>codeVerifier - Verificador PKCE</li>
+     * </ul>
+     *
+     * @param grantType Tipo de grant (obrigatório)
+     * @param clientId ID do cliente (obrigatório)
+     * @param clientSecret Secret do cliente (obrigatório)
+     * @param scope Escopos solicitados (opcional)
+     * @param code Código de autorização (opcional)
+     * @param redirectUri URI de redirecionamento (opcional)
+     * @param refreshToken Token de atualização (opcional)
+     * @param username Usuário (opcional)
+     * @param password Senha (opcional)
+     * @param codeVerifier Verificador PKCE (opcional)
      * @return Token de acesso com informações de expiração
      */
     @RequestLine("POST /oauth2/token")
@@ -90,5 +123,16 @@ public interface ConexaoAuthClient {
             "Content-Type: application/x-www-form-urlencoded",
             "Accept: application/json"
     })
-    TokenResponse clientCredentials(ClientCredentialsRequest request);
+    @Body("grant_type={grantType}&client_id={clientId}&client_secret={clientSecret}{scope}{code}{redirectUri}{refreshToken}{username}{password}{codeVerifier}")
+    TokenResponse clientCredentials(
+            @Param("grantType") String grantType,
+            @Param("clientId") String clientId,
+            @Param("clientSecret") String clientSecret,
+            @Param("scope") String scope,
+            @Param("code") String code,
+            @Param("redirectUri") String redirectUri,
+            @Param("refreshToken") String refreshToken,
+            @Param("username") String username,
+            @Param("password") String password,
+            @Param("codeVerifier") String codeVerifier);
 }
