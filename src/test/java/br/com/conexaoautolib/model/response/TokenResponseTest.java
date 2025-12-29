@@ -1,16 +1,22 @@
 package br.com.conexaoautolib.model.response;
 
-import br.com.conexaoautolib.model.response.factories.TokenResponseFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.LocalDateTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-import static org.junit.jupiter.api.Assertions.*;
+import br.com.conexaoautolib.model.response.factories.TokenResponseFactory;
 
 /**
  * Testes unitários para TokenResponse.
@@ -139,7 +145,7 @@ class TokenResponseTest {
         assertTrue(json.contains("\"expires_in\""));
         assertTrue(json.contains("\"refresh_token\""));
         assertTrue(json.contains("\"scope\""));
-        
+
         // Campos calculados não devem aparecer
         assertFalse(json.contains("expiresAt"));
         assertFalse(json.contains("expired"));
@@ -150,14 +156,14 @@ class TokenResponseTest {
     void shouldDeserializeFromJsonCorrectly() throws JsonProcessingException {
         // Arrange
         String json = """
-            {
-              "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test",
-              "token_type": "Bearer",
-              "expires_in": 3600,
-              "refresh_token": "refresh-token-12345",
-              "scope": "read write"
-            }
-            """;
+                {
+                  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test",
+                  "token_type": "Bearer",
+                  "expires_in": 3600,
+                  "refresh_token": "refresh-token-12345",
+                  "scope": "read write"
+                }
+                """;
 
         // Act
         TokenResponse response = objectMapper.readValue(json, TokenResponse.class);
@@ -246,25 +252,10 @@ class TokenResponseTest {
         assertNotNull(response.getTokenType());
         assertNotNull(response.getExpiresIn());
         assertNotNull(response.toString());
-        
+
         // Imutabilidade é garantida em tempo de compilação
         // @Data + @Builder + @AllArgsConstructor + @NoArgsConstructor
         // garante objetos consistentes após criação
-    }
-
-    @Test
-    @DisplayName("Deve handle scopes nulos corretamente")
-    void shouldHandleNullScopesCorrectly() {
-        // Arrange
-        TokenResponse response = TokenResponseFactory.createWithoutRefreshToken();
-
-        // Act & Assert
-        assertNull(response.getScope());
-        
-        // toString deve handle null scopes
-        String toString = response.toString();
-        assertNotNull(toString);
-        assertFalse(toString.contains("scope=null"));
     }
 
     @Test

@@ -45,7 +45,8 @@ class ConexaoAuthPropertiesTest {
     @Test
     void testClientPropertiesMap() {
         ApplicationContextRunner runner = new ApplicationContextRunner()
-            .withUserConfiguration(ConexaoAuthAutoConfiguration.class);
+            .withUserConfiguration(ConexaoAuthAutoConfiguration.class)
+            .withPropertyValues("conexaoauth.server.url=http://test-server");
 
         runner.run(context -> {
             ConexaoAuthProperties props = context.getBean(ConexaoAuthProperties.class);

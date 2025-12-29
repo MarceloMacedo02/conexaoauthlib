@@ -58,6 +58,7 @@ public class ConexaoAuthFeignConfig {
             case "BASIC" -> Logger.Level.BASIC;
             case "HEADERS" -> Logger.Level.HEADERS;
             case "FULL" -> Logger.Level.FULL;
+            case "INFO" -> Logger.Level.BASIC;
             default -> {
                 log.warn("Nível de logging Feign desconhecido: {}, usando BASIC", logLevel);
                 yield Logger.Level.BASIC;

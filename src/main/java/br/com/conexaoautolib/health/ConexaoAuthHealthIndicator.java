@@ -8,7 +8,6 @@ import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,14 +19,13 @@ import java.util.Optional;
 
 /**
  * Health Indicator para ConexãoAuthLib.
- * 
+ *
  * Verifica a saúde dos principais componentes da biblioteca incluindo
  * conectividade com servidor e funcionalidade do armazenamento de tokens.
- * 
+ *
  * @author ConexãoAuthLib Team
  * @version 1.0.0
  */
-@Component
 public class ConexaoAuthHealthIndicator implements HealthIndicator {
     
     private final HealthProperties healthProperties;

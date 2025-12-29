@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import br.com.conexaoautolib.autoconfigure.properties.ClientProperties;
-import br.com.conexaoautolib.autoconfigure.properties.HealthProperties;
+import br.com.conexaoautolib.autoconfigure.properties.ServerProperties;
 import br.com.conexaoautolib.client.ConexaoAuthOAuth2Client;
 import br.com.conexaoautolib.config.ConexaoAuthErrorDecoder;
 import br.com.conexaoautolib.health.ConexaoAuthHealthIndicator;
@@ -23,10 +23,10 @@ import io.micrometer.core.instrument.MeterRegistry;
 
 /**
  * Classe de autoconfiguração principal para ConexãoAuthLib.
- * 
+ *
  * Esta classe é responsável por configurar todos os beans necessários
  * para o funcionamento da biblioteca quando presente no classpath.
- * 
+ *
  * @author ConexãoAuthLib Team
  * @version 1.0.0
  */
@@ -36,13 +36,24 @@ import io.micrometer.core.instrument.MeterRegistry;
 @ConditionalOnProperty(prefix = "conexaoauth", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class ConexaoAuthAutoConfiguration {
 
+
+
     /**
-     * Configura o bean de HealthProperties para health checks.
+     * Configura o bean ServerProperties para URLs do servidor.
      */
     @Bean
     @ConditionalOnMissingBean
-    public HealthProperties healthProperties() {
-        return new HealthProperties();
+    public ServerProperties serverProperties() {
+        return new ServerProperties();
+    }
+
+    /**
+     * Configura o bean TokenStorage padrão (InMemoryTokenStorage).
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TokenStorage tokenStorage() {
+        return new InMemoryTokenStorage();
     }
 
     /**
@@ -64,21 +75,9 @@ public class ConexaoAuthAutoConfiguration {
     @ConditionalOnEnabledHealthIndicator("conexaoauth")
     @ConditionalOnMissingBean
     public ConexaoAuthHealthIndicator conexaoAuthHealthIndicator(
-            HealthProperties healthProperties,
             ConexaoAuthProperties conexaoAuthProperties,
             TokenStorage tokenStorage) {
-        return new ConexaoAuthHealthIndicator(healthProperties, conexaoAuthProperties.getServer(), tokenStorage);
-    }
-
-
-
-    /**
-     * Configura o bean TokenStorage para cache de tokens.
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public TokenStorage tokenStorage() {
-        return new InMemoryTokenStorage();
+        return new ConexaoAuthHealthIndicator(conexaoAuthProperties.getHealth(), conexaoAuthProperties.getServer(), tokenStorage);
     }
 
     /**
@@ -96,12 +95,5 @@ public class ConexaoAuthAutoConfiguration {
         return new TokenInjectionInterceptor(tokenStorage, clientProperties);
     }
 
-    /**
-     * Configura o bean ConexaoAuthErrorDecoder para tratamento de erros.
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public ConexaoAuthErrorDecoder conexaoAuthErrorDecoder() {
-        return new ConexaoAuthErrorDecoder();
-    }
+
 }

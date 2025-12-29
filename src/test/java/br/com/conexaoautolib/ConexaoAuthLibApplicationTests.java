@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author ConexãoAuthLib Team
  * @version 1.0.0
  */
-@SpringBootTest
+@SpringBootTest(classes = ConexaoAuthLibApplication.class)
 class ConexaoAuthLibApplicationTests {
 
 	@Test
