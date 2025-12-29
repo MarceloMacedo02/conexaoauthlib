@@ -1,17 +1,24 @@
 package br.com.conexaoautolib.autoconfigure;
 
 import org.springframework.boot.actuate.autoconfigure.health.ConditionalOnEnabledHealthIndicator;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import br.com.conexaoautolib.autoconfigure.properties.ClientProperties;
 import br.com.conexaoautolib.autoconfigure.properties.HealthProperties;
+import br.com.conexaoautolib.client.ConexaoAuthOAuth2Client;
+import br.com.conexaoautolib.config.ConexaoAuthErrorDecoder;
 import br.com.conexaoautolib.health.ConexaoAuthHealthIndicator;
 import br.com.conexaoautolib.health.MetricsCollector;
+import br.com.conexaoautolib.interceptor.TokenInjectionInterceptor;
+import br.com.conexaoautolib.storage.InMemoryTokenStorage;
+import br.com.conexaoautolib.storage.TokenStorage;
 import io.micrometer.core.instrument.MeterRegistry;
 
 /**
@@ -25,6 +32,7 @@ import io.micrometer.core.instrument.MeterRegistry;
  */
 @Configuration
 @EnableConfigurationProperties(ConexaoAuthProperties.class)
+@EnableFeignClients(basePackages = "br.com.conexaoautolib.client")
 @ConditionalOnProperty(prefix = "conexaoauth", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class ConexaoAuthAutoConfiguration {
 
@@ -57,14 +65,43 @@ public class ConexaoAuthAutoConfiguration {
     @ConditionalOnMissingBean
     public ConexaoAuthHealthIndicator conexaoAuthHealthIndicator(
             HealthProperties healthProperties,
-            ConexaoAuthProperties conexaoAuthProperties) {
-        return new ConexaoAuthHealthIndicator(healthProperties, conexaoAuthProperties.getServer());
+            ConexaoAuthProperties conexaoAuthProperties,
+            TokenStorage tokenStorage) {
+        return new ConexaoAuthHealthIndicator(healthProperties, conexaoAuthProperties.getServer(), tokenStorage);
     }
 
-    // TODO: Implementar configuração de beans nas próximas stories
-    // - TokenStorage (@ConditionalOnMissingBean)
-    // - ConexaoAuthFeignConfig (@ConditionalOnMissingBean)
-    // - TokenInjectionInterceptor (@ConditionalOnMissingBean)
-    // - LoggingInterceptor (@ConditionalOnMissingBean)
-    // - ConexaoAuthErrorDecoder (@ConditionalOnMissingBean)
+
+
+    /**
+     * Configura o bean TokenStorage para cache de tokens.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TokenStorage tokenStorage() {
+        return new InMemoryTokenStorage();
+    }
+
+    /**
+     * Configura o bean TokenInjectionInterceptor para injeção automática de tokens.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TokenInjectionInterceptor tokenInjectionInterceptor(
+            TokenStorage tokenStorage,
+            ConexaoAuthProperties conexaoAuthProperties) {
+        // Cria ClientProperties padrão se não existir
+        ClientProperties clientProperties = new ClientProperties();
+        clientProperties.setClientId("default-client");
+        clientProperties.setRealm("default-realm");
+        return new TokenInjectionInterceptor(tokenStorage, clientProperties);
+    }
+
+    /**
+     * Configura o bean ConexaoAuthErrorDecoder para tratamento de erros.
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public ConexaoAuthErrorDecoder conexaoAuthErrorDecoder() {
+        return new ConexaoAuthErrorDecoder();
+    }
 }

@@ -2,6 +2,8 @@ package br.com.conexaoautolib.health;
 
 import br.com.conexaoautolib.autoconfigure.properties.HealthProperties;
 import br.com.conexaoautolib.autoconfigure.properties.ServerProperties;
+import br.com.conexaoautolib.model.response.TokenResponse;
+import br.com.conexaoautolib.storage.TokenStorage;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
@@ -14,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Health Indicator para ConexãoAuthLib.
@@ -30,11 +33,14 @@ public class ConexaoAuthHealthIndicator implements HealthIndicator {
     private final HealthProperties healthProperties;
     private final ServerProperties serverProperties;
     private final RestTemplate restTemplate;
+    private final TokenStorage tokenStorage;
     
     public ConexaoAuthHealthIndicator(HealthProperties healthProperties,
-                                    ServerProperties serverProperties) {
+                                    ServerProperties serverProperties,
+                                    TokenStorage tokenStorage) {
         this.healthProperties = healthProperties;
         this.serverProperties = serverProperties;
+        this.tokenStorage = tokenStorage;
         this.restTemplate = new RestTemplate();
     }
     
@@ -144,32 +150,85 @@ public class ConexaoAuthHealthIndicator implements HealthIndicator {
     
     /**
      * Verifica funcionalidade do armazenamento de tokens.
-     * Placeholder implementação - será expandida na Story 2.5.
+     * Implementação completa que testa operações básicas do TokenStorage.
      */
     private boolean checkTokenStorage(Map<String, Object> details) {
         Map<String, Object> tokenStorageInfo = new HashMap<>();
-        boolean isHealthy = false;
+        boolean isHealthy = true;
         
         try {
-            // Placeholder para verificação real do armazenamento
-            // Por enquanto, verificamos se o sistema pode acessar o sistema de arquivos
-            String tempDir = System.getProperty("java.io.tmpdir");
-            if (tempDir != null && java.nio.file.Files.isWritable(java.nio.file.Paths.get(tempDir))) {
-                tokenStorageInfo.put("status", "UP");
-                tokenStorageInfo.put("details", "Sistema de armazenamento acessível");
-                isHealthy = true;
-            } else {
+            if (tokenStorage == null) {
                 tokenStorageInfo.put("status", "DOWN");
-                tokenStorageInfo.put("details", "Sistema de armazenamento inacessível");
+                tokenStorageInfo.put("details", "TokenStorage não está configurado");
                 isHealthy = false;
+            } else {
+                // Teste de escrita/leitura do storage
+                String testKey = "health-check-test";
+                TokenResponse testToken = createTestTokenResponse();
+                
+                // Testa armazenamento
+                tokenStorage.store(testKey, testToken);
+                
+                // Testa recuperação
+                Optional<TokenResponse> retrieved = tokenStorage.retrieve(testKey);
+                if (!retrieved.isPresent()) {
+                    tokenStorageInfo.put("storeRetrieve", "FAIL");
+                    isHealthy = false;
+                } else {
+                    tokenStorageInfo.put("storeRetrieve", "PASS");
+                }
+                
+                // Testa validação
+                boolean isValid = tokenStorage.isValid(testKey);
+                tokenStorageInfo.put("validation", isValid ? "PASS" : "FAIL");
+                if (!isValid) {
+                    isHealthy = false;
+                }
+                
+                // Testa limpeza
+                tokenStorage.invalidate(testKey);
+                Optional<TokenResponse> afterCleanup = tokenStorage.retrieve(testKey);
+                if (afterCleanup.isPresent()) {
+                    tokenStorageInfo.put("cleanup", "FAIL");
+                    isHealthy = false;
+                } else {
+                    tokenStorageInfo.put("cleanup", "PASS");
+                }
+                
+                // Informações gerais do storage
+                tokenStorageInfo.put("type", tokenStorage.getClass().getSimpleName());
+                tokenStorageInfo.put("size", tokenStorage.size());
+                tokenStorageInfo.put("empty", tokenStorage.isEmpty());
+                
+                if (isHealthy) {
+                    tokenStorageInfo.put("status", "UP");
+                    tokenStorageInfo.put("details", "Todas as operações de storage funcionam corretamente");
+                } else {
+                    tokenStorageInfo.put("status", "DOWN");
+                    tokenStorageInfo.put("details", "Falha nas operações de armazenamento de tokens");
+                }
             }
         } catch (Exception e) {
             tokenStorageInfo.put("status", "DOWN");
             tokenStorageInfo.put("details", "Erro ao verificar armazenamento: " + e.getMessage());
+            tokenStorageInfo.put("error", e.getClass().getSimpleName());
             isHealthy = false;
         }
         
         details.put("tokenStorage", tokenStorageInfo);
         return isHealthy;
+    }
+    
+    /**
+     * Cria um token de teste para verificação do storage.
+     */
+    private TokenResponse createTestTokenResponse() {
+        return TokenResponse.builder()
+                .accessToken("test-access-token-health-check")
+                .tokenType("Bearer")
+                .expiresIn(300L)
+                .refreshToken("test-refresh-token-health-check")
+                .scope("health-check")
+                .build();
     }
 }

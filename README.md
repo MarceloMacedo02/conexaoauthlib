@@ -1,8 +1,32 @@
-# Conexão Auth Spring Boot Starter
+# ConexãoAuthLib
+
+[![Build Status](https://github.com/your-org/conexaoautolib/workflows/CI/badge.svg)](https://github.com/your-org/conexaoautolib/actions)
+[![Coverage](https://codecov.io/gh/your-org/conexaoautolib/branch/main/graph/badge.svg)](https://codecov.io/gh/your-org/conexaoautolib)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+ConexãoAuthLib is a Spring Boot starter library that provides seamless integration with ConexãoAuth Authorization Server. It offers fluent APIs for OAuth2 token management and user operations with automatic configuration and comprehensive error handling.
+
+---
+
+## 🇧🇷 Conexão Auth Spring Boot Starter
 
 Biblioteca Spring Boot para integração com o serviço de autenticação Conexão Auth.
 
-## 🚀 Instalação
+## 🌟 Features
+
+- 🚀 **Zero Configuration**: Spring Boot autoconfiguration gets you started instantly
+- 🔄 **Automatic Token Management**: Handles token acquisition, refresh, and caching transparently
+- 🎯 **Fluent APIs**: Intuitive method-chaining for easy integration
+- 🛡️ **Enterprise Ready**: Built-in retry, circuit breaker, and comprehensive error handling
+- 📊 **Health Monitoring**: Spring Boot Actuator integration for health checks and metrics
+- 🧪 **Thoroughly Tested**: High test coverage with comprehensive integration testing
+
+## 🚀 Installation
+
+### English Documentation
+For comprehensive English documentation, see the [Installation Guide](docs/development-guide.md) below.
+
+### 🇧🇷 Instalação em Português
 
 ### 1. Configurar Repositório GitHub Packages
 
