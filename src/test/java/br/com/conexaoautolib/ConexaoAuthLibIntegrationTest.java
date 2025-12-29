@@ -23,8 +23,8 @@ class ConexaoAuthLibIntegrationTest {
                 br.com.conexaoautolib.autoconfigure.ConexaoAuthAutoConfiguration.class))
             .withBean(MeterRegistry.class, SimpleMeterRegistry::new)
             .run(context -> {
-                assertThat(context).hasSingleBean("metricsCollector");
-                assertThat(context).hasBean("healthProperties");
+                assertThat(context).hasSingleBean(br.com.conexaoautolib.health.MetricsCollector.class);
+                assertThat(context).hasBean(br.com.conexaoautolib.autoconfigure.properties.HealthProperties.class);
             });
     }
 
