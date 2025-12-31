@@ -1,0 +1,43 @@
+# ConexãoAuthLib - Application Configuration
+
+# Configurações padrão da biblioteca
+conexao-auth:
+  default:
+    # URL base do servidor OAuth2/Identity
+    base-url: "http://localhost:8080"
+
+    # Timeouts em milissegundos
+    connect-timeout: 5000
+    read-timeout: 10000
+
+    # Configurações de retry
+    max-retries: 3
+
+    # Habilitar/desabilitar resiliência
+    resilience:
+      enabled: true
+
+  # Configurações específicas por cliente
+  clients:
+    oauth2:
+      name: oauth2
+      base-url: "${conexao-auth.default.base-url}/oauth2"
+    tenant:
+      name: tenant
+      base-url: "${conexao-auth.default.base-url}/api/tenants"
+    client:
+      name: client
+      base-url: "${conexao-auth.default.base-url}/api/clients"
+    user:
+      name: user
+      base-url: "${conexao-auth.default.base-url}/api/users"
+    role:
+      name: role
+      base-url: "${conexao-auth.default.base-url}/api/roles"
+    scope:
+      name: scope
+      base-url: "${conexao-auth.default.base-url}/api/scopes"
+
+# Configurações de Resilience4j (carregadas de resilience4j.yml)
+resilience4j:
+  config: classpath:resilience4j.yml
